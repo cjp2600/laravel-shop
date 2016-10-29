@@ -1,7 +1,5 @@
 <?php
-
 namespace Amsgames\LaravelShop;
-
 /**
  * Service provider for laravel.
  *
@@ -10,39 +8,37 @@ namespace Amsgames\LaravelShop;
  * @license MIT
  * @package Amsgames\LaravelShop
  */
-
-use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
+/**
+ * Class LaravelShopProvider
+ *
+ * @package Amsgames\LaravelShop
+ */
 class LaravelShopProvider extends ServiceProvider
 {
-
     /**
      * Indicates if loading of the provider is deferred.
      *
      * @var bool
      */
     protected $defer = false;
-
     /**
      * Bootstrap the application events.
      *
      * @return void
      */
-    public function boot(Router $router)
+    public function boot()
     {
-        parent::boot($router);
-
+        parent::boot();
         // Publish config files
         $this->publishes([
             __DIR__ . '/Config/config.php' => config_path('shop.php'),
         ]);
-
         // Register commands
         $this->commands('command.laravel-shop.migration');
-
     }
-
     /**
      * Register the service provider.
      *
@@ -51,12 +47,9 @@ class LaravelShopProvider extends ServiceProvider
     public function register()
     {
         $this->registerShop();
-
         $this->registerCommands();
-
         $this->mergeConfig();
     }
-
     /**
      * Register the application bindings.
      *
@@ -68,7 +61,6 @@ class LaravelShopProvider extends ServiceProvider
             return new LaravelShop($app);
         });
     }
-
     /**
      * Merges user's and entrust's configs.
      *
@@ -80,7 +72,6 @@ class LaravelShopProvider extends ServiceProvider
             __DIR__ . '/Config/config.php', 'shop'
         );
     }
-
     /**
      * Register the artisan commands.
      *
@@ -92,7 +83,6 @@ class LaravelShopProvider extends ServiceProvider
             return new MigrationCommand();
         });
     }
-
     /**
      * Get the services provided.
      *
@@ -104,26 +94,19 @@ class LaravelShopProvider extends ServiceProvider
             'shop', 'command.laravel-shop.migration'
         ];
     }
-
     /**
      * Maps router.
      * Add package special controllers.
      *
      * @param Router $route Router.
      */
-    public function map(Router $router)
+    public function map()
     {
-        $router->group(['namespace' => 'Amsgames\LaravelShop\Http\Controllers'], function($router) {
-
-            $router->group(['prefix' => 'shop'], function ($router) {
-
-                $router->get('callback/payment/{status}/{id}/{shoptoken}', ['as' => 'shop.callback', 'uses' => 'Shop\CallbackController@process']);
-
-                $router->post('callback/payment/{status}/{id}/{shoptoken}', ['as' => 'shop.callback', 'uses' => 'Shop\CallbackController@process']);
-
+        Route::group(['namespace' => 'Amsgames\LaravelShop\Http\Controllers'], function() {
+            Route::group(['prefix' => 'shop'], function ($router) {
+                Route::get('callback/payment/{status}/{id}/{shoptoken}', ['as' => 'shop.callback', 'uses' => 'Shop\CallbackController@process']);
+                Route::post('callback/payment/{status}/{id}/{shoptoken}', ['as' => 'shop.callback', 'uses' => 'Shop\CallbackController@process']);
             });
-
         });
     }
-	
 }
